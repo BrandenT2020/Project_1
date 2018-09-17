@@ -1,47 +1,49 @@
-/* Menu.java -- Creates the menu that takes user input, entry point of minesweeper game.
- *
- * open() -- creates a new menu object
- * initMenu() -- called by the constructor of menu, creates all relevant input fields for user
- * */
+package minesweeper;
 
 //Swing imports
-import javax.swing.JFrame;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JComboBox;
-import javax.swing.JTextField;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 //AWT imports
 import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Toolkit;
 
+/**
+ * Creates the menu that the user inputs information into and then verifies input
+ * and passes the input over to {@link Board} as well as calls {@link Tile#setIcons()} to set the
+ * static icon variables in the {@link Tile} class, the entry point of Minesweeper.
+ * */
 public class Menu {
 
-    /*Menu() Constructor
+    /**
      * Constructor just calls initMenu() which
      * initializes the menu
+     *
+     * @ms.Pre-condition No guarantees are made before this function is called
+     * @ms.Post-condition Calls the function that creates the menu
      * */
     private Menu() {
 
         initMenu();
     }
 
-    /*open()
-     * @Return Void
-     *
-     * Sort of like a get/set function but in this
-     * case open() provides a public method to avoid
+    /**
+     * Provides a public method to avoid
      * creating Menu Objects in any other class
+     *
+     * @ms.Pre-condition The board, winFrame, or loseFrame are disposed
+     * @ms.Post-condition Calls the constructor to create a new menu for the user to create a new board
      * */
     static void open() {
         Menu menu = new Menu();
     }
 
-    /*initMenu()
-     * @Return Void
+    /**
+     * Creates the menu, which takes in the user's input, verifies it,
+     * and passes it to {@link Board}
      *
-     * Creates the menu, called only by the constructor
+     * @ms.Pre-condition No guarantees are made before this function is called
+     * @ms.Post-condition Creates a JFrame where users can input their preferred rows, columns and mines
+     *                    while confirming the inputs are valid and passing them to Board class
      * */
     private void initMenu() {
 
@@ -135,6 +137,10 @@ public class Menu {
             int numCols = (Integer) field_colLength.getSelectedItem();
 
             mineErr.setVisible(false);
+            /*
+             * Try and catch to prevent the function from passing anything that
+             * is not a number
+             */
             try {
                 int mineNum = Integer.parseInt(mineField.getText());
                 if (mineNum > ((numRows * numCols) - 1)) {
@@ -154,7 +160,10 @@ public class Menu {
                 mineErr.setVisible(true);
             }
 
-
+            /*
+             * If no errors have been found in the inputs, the Board constructor is called
+             * and the valid parameters are passed through
+             */
             if (!error_exists) {
                 Board game = new Board(numRows, numCols, Integer.parseInt(mineField.getText()));
                 menuFrame.dispose();
@@ -165,6 +174,14 @@ public class Menu {
     /////////////////////////////////////////////////////////
     //Main
     /////////////////////////////////////////////////////////
+    /**
+     * Main calls the constructor for {@link #Menu()}
+     *
+     * @param args Never used due to this class being the entry point of the function.
+     *
+     * @ms.Pre-condition No guarantees are made before this function is called
+     * @ms.Post-condition Constructor is called
+     */
     public static void main(String[] args) {
         new Tile().setIcons();
         Menu startGame = new Menu();

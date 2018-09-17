@@ -1,15 +1,4 @@
-/* Game_Driver.java -- Sets mines, tile values, and checks if the game is over
- *
- * gameOver() -- Called if the player has lost by clicking on a mine, ends the game
- * gameWin() -- Called if the player has won the game and checks all the tiles before prompting user for replay
- * isEndPossible() -- Called when a flag is set to check if the mines are all flagged and tiles are all revealed
- * openTile() -- Recursive function that expands from an empty tile orthogonally
- * initBoard() -- Places mines and sets the value of surrounding mines in each tile
- *
- * placeMines() -- called by initBoard() to place all of the mines
- * setMine() -- called by placeMines() to check if a tile is a mine, if not place the mine, if yes call setMine() again
- * setRiskNum() called by initBoard() to set the value of all surrounding mines to every tile
- * */
+package minesweeper;
 
 //Swing imports
 import javax.swing.JFrame;
@@ -23,17 +12,46 @@ import java.awt.event.WindowEvent;
 //Non-GUI related imports
 import java.util.Random;
 
+/**
+ * Receives required objects from {@link Board} and takes the user input and
+ * manipulates the objects as necessary to play Minesweeper.
+ * */
 class Game_Driver {
+    /* Objects for Game_Driver */
+    /** set equal to JFrame board in constructor from {@link Board}, game window that user interacts with **/
     private static JFrame mGame;
+    /** 2D Tile array of used for game logic, equal coordinates to nXm game board **/
     private static Tile mTileArray[][];
+    /** creates a random value, used for x,y coordinates **/
     private Random random = new Random();
+
+    /* Member Variables for Game_Driver */
+    /** holds the number of rows **/
     private static int mNumRows;
+    /** holds the number of columns **/
     private static int mNumCols;
+    /** holds the number of mines **/
     private static int mNumMines;
 
     /////////////////////////////////////////////////////////
     //Constructor
     /////////////////////////////////////////////////////////
+     /**
+     * This constructor is called in {@link Board} to initialize the board with the already
+     * checked input from the user.
+     *
+     * @ms.Pre-condition passes in ready to go frame with buttons already associated to tileArray
+     * @ms.Post-condition Game is fully initialized
+     *
+     * @see #initBoard
+     *
+     * @param game JFrame of the nXm board
+     * @param tileArray {@link Tile} object array already associated with buttons
+     * @param numRows value of amount of rows in the board
+     * @param numCols value of amount of columns in the board
+     * @param mineCount amount of mines user wants to place in their board
+     *
+     * */
     Game_Driver(JFrame game, Tile[][] tileArray, int numRows, int numCols, int mineCount) {
         mGame = game;
         mTileArray = tileArray;
@@ -47,11 +65,15 @@ class Game_Driver {
     //End of game methods
     /////////////////////////////////////////////////////////
 
-    /*gameOver()
-     * @Return Void
-     *
+    /**
      * Displays all of the bombs and disables all of the buttons,
      * presents the user with a replay option.
+     *
+     * @ms.Pre-condition User has lost, mine has been hit
+     * @ms.Post-condition Game Board is disabled and lose frame pops up
+     *
+     * @see #gameWin()
+     *
      * */
     static void gameOver() {
         for (int i = 0; i < mNumRows; i++) {
@@ -90,11 +112,14 @@ class Game_Driver {
 
     }
 
-    /*gameWin()
-     * @Return Void
-     *
+    /**
      * Displays all of the bombs and disables all of the buttons,
      * presents the user with a replay option.
+     *
+     * @ms.Pre-condition User has won, all tiles revealed, flags are placed
+     * @ms.Post-condition Win window is revealed
+     *
+     * @see #gameOver()
      * */
     static void gameWin() {
         if (Board.getFlagCount() == 0) {
@@ -145,14 +170,19 @@ class Game_Driver {
     /*HELPER METHODS            */
     //////////////////////////////
 
-    /*isEndPossible()
-     * @Return boolean
-     *
+    /**
      * Iterates through the board and checks
      * every tile that is not a mine, if every
      * tile that is not a mine is disabled as a result
      * of being clicked, the game may end. Only called
      * by setting a flag.
+     *
+     * @return boolean isPossible, depends on if any buttons are still enabled
+     *
+     * @ms.Pre-condition called in (@link #Tile} #mouselistener to see if one has won
+     * @ms.Post-condition the boolean returned checked if the game has been won
+     *
+     * @see Tile#mouseListener
      * */
     static boolean isEndPossible() {
         boolean isPossible = true;
@@ -166,12 +196,20 @@ class Game_Driver {
         return (isPossible);
     }
 
-    /*openTile()
-     * @Return void
-     *
+    /**
      * If a tile is blank, check that the orthogonally adjacent
      * tiles are openable with canOpen(), if true recursively call
      * openTile() until tiles that are unopenable are encountered.
+     *
+     * @param i coordinate to which tile needs to be opened
+     * @param j coordinate to which tile needs to be opened
+     *
+     * @ms.Pre-condition User clicked on a tile and needs corresponding tiles to open as well
+     * @ms.Post-condition Tile is left opened with corresponding tiles opened as well
+     *
+     * @see Tile#setIsOpened()
+     * @see Tile#displaySurroundingMines()
+     * @see Tile#canOpen()
      * */
     static void openTile(int i, int j) {
 
@@ -199,23 +237,30 @@ class Game_Driver {
     /*Methods that initialize the board*/
     /////////////////////////////////////
 
-    /*initBoard()
-     * @Return void
-     *
+    /**
      * calls placeMines() to randomly place mines throughout
      * the board and then calls setRiskNum() to set the mine
      * count of every tile.
+     *
+     * @ms.Pre-condition called in constructor after using parameters from {@link Board}
+     * @ms.Post-condition game board is initialized through mTileArray
+     *
+     * @see #placeMines()
+     * @see #setRiskNum()
      * */
     private void initBoard() {
         placeMines();
         setRiskNum();
     }
 
-    /*placeMines()
-     * @Return void
-     *
+    /**
      * calls setMine() the number of times equal to the
      * number of mines
+     *
+     * @ms.Pre-condition No guarantees are made before this function is called
+     * @ms.Post-condition all mines are set into place
+     *
+     * @see #setMine()
      * */
     private void placeMines() {
         for (int i = 0; i < mNumMines; i++) {
@@ -223,13 +268,16 @@ class Game_Driver {
         }
     }
 
-    /*setMine()
-     * @Return void
-     *
+    /**
      * sets a random x and y bound by the length of
      * the rows and columns then checks if a mine is present,
      * if a mine is present call setMine() again, eventually
      * coming off the stack when all mines are placed.
+     *
+     * @ms.Pre-condition called number of mines times
+     * @ms.Post-condition mine is set in a random tile
+     *
+     * @see #random
      * */
     private void setMine() {
         int x = random.nextInt(mNumRows);
@@ -242,12 +290,15 @@ class Game_Driver {
         }
     }
 
-    /*setRiskNum()
-     * @Return void
-     *
+    /**
      * checks the surrounding positions of a tile for a mine, if
      * a mine is present increment mineRisk, once all if statements
      * are checked called setSurroundingMines() and pass in mineRisk.
+     *
+     * @ms.Pre-condition No guarantees are made before this function is called
+     * @ms.Post-condition All of the tiles are given a mine risk number
+     *
+     * @see Tile#getIsMine() 
      * */
     private void setRiskNum() {
         for (int i = 0; i < mNumRows; i++) {
